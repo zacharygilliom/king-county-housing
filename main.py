@@ -14,27 +14,53 @@ def change_datetime(df, col):
 	df[col] = df[col].apply(lambda x: pd.to_datetime(x, format='%Y%m%d'))
 	return df[col]
 
+# A function that allows us to quickly view some bivariate 
+# distributions.
+def create_join_plot(df, col1, col2):
+	sns.jointplot(x=col1, y=col2, data=df)
+	plt.show()
+
+
+print(df.columns)
+
 
 # Change date col from string to date time format.
 df['date'] = change_datetime(df, 'date')
+df = df[(df['sqft_lot15'] < 400000) & (df['bedrooms'] < 33)]
 
-df = df[df['sqft_lot15'] < 400000]
+# picking out our variables pertaining to the house details.
+features = ['price', 'bedrooms', 'bathrooms', 'sqft_living', 
+			'sqft_lot', 'floors', 'waterfront', 'grade', 'sqft_above',
+			'sqft_basement', 'sqft_living15', 'sqft_lot15']
 
-pal=sns.color_palette('Blues_d', len(list(df['bedrooms'].unique())))
 
-# Barplot fig 1
-fig1, ax = plt.subplots(nrows=1)
-sns.barplot(x='bedrooms', y='price', ci=None, data=df, palette=np.array(pal[::-1]))
+# Building our color palette so we can use our color palette 
+# on barplots.
+pal = sns.color_palette('Blues_d', len(list(df['bedrooms'].unique())))
+pal1 = sns.color_palette('Blues_d', len(list(df['bathrooms'].unique())))
+
+# Barplot to look at how number of bedrooms impacts the price.
+fig1, ax = plt.subplots(nrows=3)
+sns.barplot(x='bedrooms', y='price', ci=None, data=df, ax=ax[0], palette=np.array(pal[::-1]))
+sns.barplot(x='bathrooms', y='price', ci=None, data=df, ax=ax[1], palette=np.array(pal1[::-1]))
+
+sns.distplot(a=df['bedrooms'], kde=False, color='b', ax=ax[2], hist_kws={'linewidth': 3})
+sns.distplot(a=df['bathrooms'], kde=False, color='g', ax=ax[2], hist_kws={'linewidth': 3})
+
+ax[0].set_xticks([i for i in range(12)])
+ax[2].set_xticks([i for i in range(11)])
+
+fig1.suptitle('Analysis by number of bedrooms/bathrooms in each house')
 fig1.show()
 
-# scatter plot fig 2
+# how the square footage of living area impacts the price
 fig2, ax = plt.subplots(nrows=1)
-sns.scatterplot(x='sqft_living15', y='price', data=df, ax=ax)
+sns.scatterplot(x='sqft_living15', y='price', data=df)
+fig2.suptitle('How the Square Footage of the house impacts the price')
 fig2.show()
 
-# scatter plot fig 3
-fig3, ax = plt.subplots(nrows=1)
-sns.scatterplot(x='sqft_lot15', y='price', data=df, ax=ax)
+# create_join_plot(df, 'bedrooms', 'bathrooms')
+
 plt.show()
 
-input('Press Enter to Stop...')
+# input('Press Enter to Stop...')
