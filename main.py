@@ -18,6 +18,8 @@ def change_datetime(df, col):
 # Change date col from string to date time format.
 df['date'] = change_datetime(df, 'date')
 
+df = df[df['sqft_lot15'] < 400000]
+
 pal=sns.color_palette('Blues_d', len(list(df['bedrooms'].unique())))
 
 # Barplot fig 1
